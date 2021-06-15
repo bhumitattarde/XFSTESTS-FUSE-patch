@@ -1,4 +1,4 @@
-# XFSTESTS-FUSE-patch
+# XFSTESTS FUSE patch
 This patch adds FUSE support to XFSTESTS.
 
 ## How to use?
