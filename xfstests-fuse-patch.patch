@@ -1,4 +1,4 @@
-From 1660d79263fdc71bbefab28e994b7e0b5418a871 Mon Sep 17 00:00:00 2001
+From 77f641e5679bd30343e495b8db4a51221dcbdc09 Mon Sep 17 00:00:00 2001
 From: Bhumit Attarde <bhumit.attarde01@gmail.com>
 Date: Fri, 4 Jun 2021 12:44:23 +0530
 Subject: [PATCH] Added FUSE support
@@ -22,7 +22,7 @@ Signed-off-by: Bhumit Attarde <bhumit.attarde01@gmail.com>
 
 diff --git a/README.fuse b/README.fuse
 new file mode 100644
-index 00000000..dc8d3979
+index 00000000..839db5dd
 --- /dev/null
 +++ b/README.fuse
 @@ -0,0 +1,29 @@
@@ -55,7 +55,6 @@ index 00000000..dc8d3979
 +export FUSE_SUBTYP=.passthrough_ll
 +export FUSE_MOUNT_OPTIONS="-osource=/home/test/scratch,allow_other,default_permissions"
 +export TEST_FS_MOUNT_OPTS="-osource=/home/test/test,allow_other,default_permissions"
-+
 diff --git a/check b/check
 index ba192042..f038645a 100755
 --- a/check
@@ -97,7 +96,7 @@ index 669909d6..ac38241a 100644
 +9p|ceph|nfs|fuse)
  	MAX_ATTRVAL_SIZE=65536
  	;;
- *)
+ bcachefs)
 diff --git a/common/config b/common/config
 index 1a269349..6202da0a 100644
 --- a/common/config
