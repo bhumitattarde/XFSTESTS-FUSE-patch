@@ -4,7 +4,7 @@ Date: Fri, 4 Jun 2021 12:44:23 +0530
 Subject: [PATCH] Added FUSE support
 
 This allows any FUSE filesystem that can mounted with
-`mount -t fuse.$SUBTYPE`
+`mount -t fuse.$FUSE_SUBTYP`
 to be tested using XFSTESTS.
 
 This patch is an improvment on the patch originally submitted by Miklos
@@ -63,7 +63,7 @@ index ba192042..f038645a 100755
      -glusterfs		test GlusterFS
      -cifs		test CIFS
      -9p			test 9p
-+	-fuse		test fuse
++    -fuse		test fuse
      -virtiofs		test virtiofs
      -overlay		test overlay
      -pvfs2		test PVFS2
@@ -140,7 +140,7 @@ index 919028ef..592039ef 100644
  	 ;;
      9p)
  	 ;;
-+	fuse)
++    fuse)
 +	 ;;
      ceph)
  	 . ./common/ceph
@@ -158,7 +158,7 @@ index 919028ef..592039ef 100644
      9p)
  	# do nothing for 9p
  	;;
-+	fuse)
++    fuse)
 +	# do nothing for fuse
 +	;;
      virtiofs)
@@ -168,7 +168,7 @@ index 919028ef..592039ef 100644
      9p)
  	# do nothing for 9p
  	;;
-+	fuse)
++    fuse)
 +	# do nothing for fuse
 +	;;
      virtiofs)
@@ -179,7 +179,7 @@ index 919028ef..592039ef 100644
  
  	case $FSTYP in
 -	nfs*|cifs|ceph|overlay|glusterfs|pvfs2|9p|virtiofs)
-+		nfs*|cifs|ceph|overlay|glusterfs|pvfs2|9p|fuse|virtiofs)
++	nfs*|cifs|ceph|overlay|glusterfs|pvfs2|9p|fuse|virtiofs)
  		# unable to re-create this fstyp, just remove all files in
  		# $SCRATCH_MNT to avoid EEXIST caused by the leftover files
  		# created in previous runs
@@ -232,7 +232,7 @@ index 919028ef..592039ef 100644
      9p)
  	# no way to check consistency for 9p
  	;;
-+	fuse)
++    fuse)
 +	# no way to check consistency for fuse
 +	;;
      virtiofs)
@@ -242,7 +242,7 @@ index 919028ef..592039ef 100644
      9p)
  	# no way to check consistency for 9p
  	;;
-+	fuse)
++    fuse)
 +	# no way to check consistency for fuse
 +	;;
      virtiofs)
