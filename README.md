@@ -1,6 +1,8 @@
 # XFSTESTS FUSE patch
 This patch adds FUSE support to XFSTESTS.
 
+**Note that the patch hasn't been updated to match the latest release.**
+
 ## How to use?
 
 To test `passthrough_ll` (`libfuse/examples`):
