@@ -1,9 +1,9 @@
-From 77f641e5679bd30343e495b8db4a51221dcbdc09 Mon Sep 17 00:00:00 2001
+From 10e805bac7405ec6e0688abfc46223317f864f92 Mon Sep 17 00:00:00 2001
 From: Bhumit Attarde <bhumit.attarde01@gmail.com>
-Date: Fri, 4 Jun 2021 12:44:23 +0530
-Subject: [PATCH] Added FUSE support
+Date: Fri, 6 Aug 2021 15:42:49 +0530
+Subject: [PATCH 1/1] Added FUSE support
 
-This allows any FUSE filesystem that can mounted with
+This allows any FUSE filesystem that can mounted like
 `mount -t fuse.$FUSE_SUBTYP`
 to be tested using XFSTESTS.
 
@@ -16,8 +16,8 @@ Signed-off-by: Bhumit Attarde <bhumit.attarde01@gmail.com>
  check         |  2 ++
  common/attr   |  4 ++--
  common/config | 10 ++++++++--
- common/rc     | 29 ++++++++++++++++++++++-------
- 5 files changed, 63 insertions(+), 11 deletions(-)
+ common/rc     | 31 +++++++++++++++++++++++--------
+ 5 files changed, 64 insertions(+), 12 deletions(-)
  create mode 100644 README.fuse
 
 diff --git a/README.fuse b/README.fuse
@@ -56,7 +56,7 @@ index 00000000..839db5dd
 +export FUSE_MOUNT_OPTIONS="-osource=/home/test/scratch,allow_other,default_permissions"
 +export TEST_FS_MOUNT_OPTS="-osource=/home/test/test,allow_other,default_permissions"
 diff --git a/check b/check
-index ba192042..f038645a 100755
+index a0863121..bae9fddd 100755
 --- a/check
 +++ b/check
 @@ -59,6 +59,7 @@ check options
@@ -76,10 +76,10 @@ index ba192042..f038645a 100755
  	-overlay)	FSTYP=overlay; export OVERLAY=true ;;
  	-pvfs2)		FSTYP=pvfs2 ;;
 diff --git a/common/attr b/common/attr
-index 669909d6..ac38241a 100644
+index 35682d7c..f3342d25 100644
 --- a/common/attr
 +++ b/common/attr
-@@ -250,7 +250,7 @@ _getfattr()
+@@ -253,7 +253,7 @@ _getfattr()
  
  # set maximum total attr space based on fs type
  case "$FSTYP" in
@@ -87,8 +87,8 @@ index 669909d6..ac38241a 100644
 +xfs|udf|pvfs2|9p|ceph|nfs|fuse)
  	MAX_ATTRS=1000
  	;;
- *)
-@@ -270,7 +270,7 @@ xfs|udf|btrfs)
+ ext2|ext3|ext4)
+@@ -312,7 +312,7 @@ xfs|udf|btrfs)
  pvfs2)
  	MAX_ATTRVAL_SIZE=8192
  	;;
@@ -98,10 +98,10 @@ index 669909d6..ac38241a 100644
  	;;
  bcachefs)
 diff --git a/common/config b/common/config
-index 1a269349..6202da0a 100644
+index 005fd50a..8203492d 100644
 --- a/common/config
 +++ b/common/config
-@@ -299,6 +299,9 @@ _mount_opts()
+@@ -305,6 +305,9 @@ _mount_opts()
  	9p)
  		export MOUNT_OPTIONS=$PLAN9_MOUNT_OPTIONS
  		;;
@@ -111,7 +111,7 @@ index 1a269349..6202da0a 100644
  	xfs)
  		export MOUNT_OPTIONS=$XFS_MOUNT_OPTIONS
  		;;
-@@ -357,6 +360,9 @@ _test_mount_opts()
+@@ -363,6 +366,9 @@ _test_mount_opts()
  	9p)
  		export TEST_FS_MOUNT_OPTS=$PLAN9_MOUNT_OPTIONS
  		;;
@@ -121,7 +121,7 @@ index 1a269349..6202da0a 100644
  	cifs)
  		export TEST_FS_MOUNT_OPTS=$CIFS_MOUNT_OPTIONS
  		;;
-@@ -492,8 +498,8 @@ _check_device()
+@@ -501,8 +507,8 @@ _check_device()
  	fi
  
  	case "$FSTYP" in
@@ -133,7 +133,7 @@ index 1a269349..6202da0a 100644
  		;;
  	overlay)
 diff --git a/common/rc b/common/rc
-index 919028ef..592039ef 100644
+index d4b1f21f..1ae0746a 100644
 --- a/common/rc
 +++ b/common/rc
 @@ -127,6 +127,8 @@ case "$FSTYP" in
@@ -159,8 +159,8 @@ index 919028ef..592039ef 100644
  	# do nothing for 9p
  	;;
 +    fuse)
-+	# do nothing for fuse
-+	;;
++    	# do nothing for fuse
++    	;;
      virtiofs)
  	# do nothing for virtiofs
  	;;
@@ -169,8 +169,8 @@ index 919028ef..592039ef 100644
  	# do nothing for 9p
  	;;
 +    fuse)
-+	# do nothing for fuse
-+	;;
++    	# do nothing for fuse
++    	;;
      virtiofs)
  	# do nothing for virtiofs
  	;;
@@ -183,7 +183,16 @@ index 919028ef..592039ef 100644
  		# unable to re-create this fstyp, just remove all files in
  		# $SCRATCH_MNT to avoid EEXIST caused by the leftover files
  		# created in previous runs
-@@ -1492,14 +1500,15 @@ _check_mounted_on()
+@@ -1271,7 +1279,7 @@ _df_device()
+ 
+     # Note that we use "==" here so awk doesn't try to interpret an NFS over
+     # IPv6 server as a regular expression.
+-    $DF_PROG 2>/dev/null | $AWK_PROG -v what=$1 '
++    $DF_PROG -a 2>/dev/null | $AWK_PROG -v what=$1 '
+         ($1==what) && (NF==1) {
+             v=$1
+             getline
+@@ -1514,14 +1522,15 @@ _check_mounted_on()
  	[ -n "$mount_rec" ] || return 1 # 1 = not mounted
  
  	# if it's mounted, make sure its on $mnt
@@ -197,11 +206,11 @@ index 919028ef..592039ef 100644
  	fi
  
 -	if [ -n "$type" -a "`_fs_type $dev`" != "$type" ]; then
-+       if [ -n "$type" -a "`_fs_type $dev`" != "$type$FUSE_SUBTYP" ]; then
++	if [ -n "$type" -a "`_fs_type $dev`" != "$type$FUSE_SUBTYP" ]; then
  		echo "$devname=$dev is mounted but not a type $type filesystem"
  		# raw $DF_PROG cannot handle NFS/CIFS/overlay correctly
  		_df_device $dev
-@@ -1523,7 +1532,7 @@ _require_scratch_nocheck()
+@@ -1545,7 +1554,7 @@ _require_scratch_nocheck()
  			_notrun "this test requires a valid \$SCRATCH_MNT"
  		fi
  		;;
@@ -210,7 +219,7 @@ index 919028ef..592039ef 100644
  		if [ -z "$SCRATCH_DEV" ]; then
  			_notrun "this test requires a valid \$SCRATCH_DEV"
  		fi
-@@ -1679,7 +1688,7 @@ _require_test()
+@@ -1701,7 +1710,7 @@ _require_test()
  			_notrun "this test requires a valid \$TEST_DIR"
  		fi
  		;;
@@ -219,7 +228,7 @@ index 919028ef..592039ef 100644
  		if [ -z "$TEST_DEV" ]; then
  			_notrun "this test requires a valid \$TEST_DEV"
  		fi
-@@ -2841,7 +2850,7 @@ _mount_or_remount_rw()
+@@ -2863,7 +2872,7 @@ _mount_or_remount_rw()
  
  	if [ $USE_REMOUNT -eq 0 ]; then
  		if [ "$FSTYP" != "overlay" ]; then
@@ -228,26 +237,26 @@ index 919028ef..592039ef 100644
  		else
  			_overlay_mount $device $mountpoint
  		fi
-@@ -2978,6 +2987,9 @@ _check_test_fs()
+@@ -3000,6 +3009,9 @@ _check_test_fs()
      9p)
  	# no way to check consistency for 9p
  	;;
 +    fuse)
-+	# no way to check consistency for fuse
-+	;;
++    	# no way to check consistency for fuse
++    	;;
      virtiofs)
  	# no way to check consistency for virtiofs
  	;;
-@@ -3039,6 +3051,9 @@ _check_scratch_fs()
+@@ -3061,6 +3073,9 @@ _check_scratch_fs()
      9p)
  	# no way to check consistency for 9p
  	;;
 +    fuse)
-+	# no way to check consistency for fuse
-+	;;
++    	# no way to check consistency for fuse
++    	;;
      virtiofs)
  	# no way to check consistency for virtiofs
  	;;
 -- 
-2.26.3
+2.30.1 (Apple Git-130)
 
